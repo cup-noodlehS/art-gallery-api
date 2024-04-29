@@ -13,7 +13,8 @@ class Artwork(models.Model):
         (SOLD, 'Sold'),
     ]
 
-    artist = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    artist = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='artworks_created')
+    buyer = models.ForeignKey(UserProfile, null=True, on_delete=models.SET_NULL, related_name='artworks_bought')
     category = models.ForeignKey('Category', null=True, on_delete=models.SET_NULL)
     title = models.CharField(max_length=100)
     description = models.TextField()
@@ -54,8 +55,8 @@ class ArtworkImage(models.Model):
 
 class MessageThread(models.Model):
     artwork = models.ForeignKey(Artwork, on_delete=models.CASCADE)
-    artist = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='artist')
-    buyer = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='buyer')
+    artist = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='artist_message_threads')
+    buyer = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='buyer_message_threads')
     created_on = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
