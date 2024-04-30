@@ -47,6 +47,7 @@ INSTALLED_APPS = [
 ASGI_APPLICATION = 'faso.asgi.application'
 
 MIDDLEWARE = [
+    'myauth.middlewares.JWTAuthentication',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -134,3 +135,5 @@ AUTH_USER_MODEL = 'myauth.User'
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
+
+JWT_SECRET = 'secret'
