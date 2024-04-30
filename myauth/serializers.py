@@ -5,7 +5,10 @@ from django.contrib.auth.models import User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'phone_number', 'address', 'avatar_url', 'user_type']
-        extra_kwargs = {
-            'password': {'write_only': True}
-        }
+        fields = ['id', 'first_name', 'last_name', 'email', 'username']
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+    class Meta:
+        model = UserProfile
+        fields = ['id', 'avatar_url', 'phone_number', 'address', 'user_type', 'user']

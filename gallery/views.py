@@ -2,8 +2,13 @@ from rest_framework.response import Response
 from rest_framework import viewsets
 from rest_framework import status
 from django.shortcuts import get_object_or_404
+
 from .models import Artwork, Category, Bid
+from myauth.models import UserProfile
+from django.contrib.auth.models import User
+from myauth.serializers import UserProfileSerializer
 from .serializers import ArtworkSerializer, CategorySerializer, BidSerializer
+from .permissions import IsArtworkOwner, IsBidOwner
 
 
 class ArtworkView(viewsets.ViewSet):
@@ -17,14 +22,27 @@ class ArtworkView(viewsets.ViewSet):
         if filters:
             queryset = queryset.filter(**filters)
 
-        serializer = ArtworkSerializer(queryset, many=True)
-        return Response(serializer.data)
+        objects = ArtworkSerializer(queryset, many=True).data
+        objects = [
+            {**object, 'artist': UserProfileSerializer(UserProfile.objects.get(pk=object['artist'])).data}
+            for object in objects
+        ]
+
+        return Response(objects)
 
     def retrieve(self, request, pk=None):
         queryset = Artwork.objects.all()
         artwork = get_object_or_404(queryset, pk=pk)
-        serializer = ArtworkSerializer(artwork)
-        return Response(serializer.data)
+        serialized_artwork = ArtworkSerializer(artwork)
+        object = serialized_artwork.data
+        serialized_userprofile = UserProfileSerializer(UserProfile.objects.get(pk=artwork.artist.pk))
+        object['artist'] = serialized_userprofile.data
+        return Response(object)
+    
+    def get_permissions(self):
+        if self.action in ['update', 'destroy']:
+            return [IsArtworkOwner()]
+        return []
 
     def create(self, request):
         serializer = ArtworkSerializer(data=request.data)
@@ -104,6 +122,11 @@ class BidView(viewsets.ViewSet):
         bid = get_object_or_404(queryset, pk=pk)
         serializer = BidSerializer(bid)
         return Response(serializer.data)
+    
+    def get_permissions(self):
+        if self.action in ['update', 'destroy']:
+            return [IsBidOwner()]
+        return []
 
     def create(self, request):
         serializer = BidSerializer(data=request.data)
