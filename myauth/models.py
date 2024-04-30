@@ -34,7 +34,7 @@ class User(AbstractUser):
     name = models.CharField(max_length=100, null=True)
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=100, null=True)
-    username = models.CharField(max_length=100, unique=True, default='Anonymous')
+    username = models.CharField(max_length=100, default='Anonymous')
     avatar_url = models.URLField(null=True)
     phone_number = models.CharField(max_length=15, null=True)
     address = models.TextField(null=True)
