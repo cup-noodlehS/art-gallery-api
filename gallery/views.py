@@ -5,11 +5,14 @@ from django.shortcuts import get_object_or_404
 
 from .models import Artwork, Category, Bid
 from myauth.models import UserProfile
-from django.contrib.auth.models import User
 from myauth.serializers import UserProfileSerializer
 from .serializers import ArtworkSerializer, CategorySerializer, BidSerializer
 from .permissions import IsArtworkOwner, IsBidOwner
 
+
+class SimpleUserProfileSerializer(UserProfileSerializer):
+    class Meta(UserProfileSerializer.Meta):
+        fields = ['id', 'avatar_url', 'user']
 
 class ArtworkView(viewsets.ViewSet):
     def list(self, request):
@@ -24,7 +27,7 @@ class ArtworkView(viewsets.ViewSet):
 
         objects = ArtworkSerializer(queryset, many=True).data
         objects = [
-            {**object, 'artist': UserProfileSerializer(UserProfile.objects.get(pk=object['artist'])).data}
+            {**object, 'artist': SimpleUserProfileSerializer(UserProfile.objects.get(pk=object['artist'])).data}
             for object in objects
         ]
 
