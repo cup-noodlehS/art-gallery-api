@@ -4,15 +4,11 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 
 from .models import Artwork, Category, Bid
-from myauth.models import UserProfile
-from myauth.serializers import UserProfileSerializer
+from myauth.models import User
+from myauth.serializers import UserSerializer
 from .serializers import ArtworkSerializer, CategorySerializer, BidSerializer
 from .permissions import IsArtworkOwner, IsBidOwner
 
-
-class SimpleUserProfileSerializer(UserProfileSerializer):
-    class Meta(UserProfileSerializer.Meta):
-        fields = ['id', 'avatar_url', 'user']
 
 class ArtworkView(viewsets.ViewSet):
     def list(self, request):
@@ -27,7 +23,7 @@ class ArtworkView(viewsets.ViewSet):
 
         objects = ArtworkSerializer(queryset, many=True).data
         objects = [
-            {**object, 'artist': SimpleUserProfileSerializer(UserProfile.objects.get(pk=object['artist'])).data}
+            {**object, 'artist': UserSerializer(User.objects.get(pk=object['artist'])).data}
             for object in objects
         ]
 
@@ -38,8 +34,8 @@ class ArtworkView(viewsets.ViewSet):
         artwork = get_object_or_404(queryset, pk=pk)
         serialized_artwork = ArtworkSerializer(artwork)
         object = serialized_artwork.data
-        serialized_userprofile = UserProfileSerializer(UserProfile.objects.get(pk=artwork.artist.pk))
-        object['artist'] = serialized_userprofile.data
+        serialized_User = UserSerializer(User.objects.get(pk=artwork.artist.pk))
+        object['artist'] = serialized_User.data
         return Response(object)
     
     def get_permissions(self):

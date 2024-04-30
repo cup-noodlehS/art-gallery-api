@@ -1,6 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
-from myauth.models import UserProfile
+from myauth.models import User
 
 
 class Artwork(models.Model):
@@ -13,14 +12,14 @@ class Artwork(models.Model):
         (SOLD, 'Sold'),
     ]
 
-    artist = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='artworks_created')
-    buyer = models.ForeignKey(UserProfile, null=True, on_delete=models.SET_NULL, related_name='artworks_bought')
+    artist = models.ForeignKey(User, on_delete=models.CASCADE, related_name='artworks_created')
+    buyer = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='artworks_bought')
     category = models.ForeignKey('Category', null=True, on_delete=models.SET_NULL)
     title = models.CharField(max_length=100)
     description = models.TextField()
     created_on = models.DateTimeField(auto_now_add=True)
-    starting_bid = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    current_highest_bid = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    starting_bid = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    current_highest_bid = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     status = models.IntegerField(choices=STATUS_CHOICES, default=OPEN)
 
     def __str__(self):
@@ -36,7 +35,7 @@ class Category(models.Model):
 
 class Bid(models.Model):
     artwork = models.ForeignKey(Artwork, on_delete=models.CASCADE)
-    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     is_anonymous = models.BooleanField(default=False)
     bid_amount = models.DecimalField(max_digits=10, decimal_places=2)
     bid_on = models.DateTimeField(auto_now_add=True)
@@ -55,9 +54,13 @@ class ArtworkImage(models.Model):
 
 class MessageThread(models.Model):
     artwork = models.ForeignKey(Artwork, on_delete=models.CASCADE)
-    artist = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='artist_message_threads')
-    buyer = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='buyer_message_threads')
+    artist = models.ForeignKey(User, on_delete=models.CASCADE, related_name='artist_message_threads')
+    buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='buyer_message_threads')
     created_on = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def messages(self):
+        return Message.objects.filter(thread=self)
 
     def __str__(self):
         return f'{self.artist.user.username} and {self.buyer.user.username} about {self.artwork.title}'
@@ -65,7 +68,7 @@ class MessageThread(models.Model):
 
 class Message(models.Model):
     thread = models.ForeignKey(MessageThread, on_delete=models.CASCADE)
-    sender = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    sender = models.ForeignKey(User, on_delete=models.CASCADE)
     body = models.TextField()
     sent_on = models.DateTimeField(auto_now_add=True)
 
