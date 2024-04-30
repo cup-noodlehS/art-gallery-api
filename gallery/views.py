@@ -1,11 +1,12 @@
 from rest_framework.response import Response
 from rest_framework import viewsets
+from rest_framework.views import APIView
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 
 from .models import Artwork, Category, Bid
 from myauth.models import User
-from myauth.serializers import UserSerializer
+from myauth.serializers import SimpleUserSerializer
 from .serializers import ArtworkSerializer, CategorySerializer, BidSerializer
 from .permissions import IsArtworkOwner, IsBidOwner
 
@@ -23,7 +24,7 @@ class ArtworkView(viewsets.ViewSet):
 
         objects = ArtworkSerializer(queryset, many=True).data
         objects = [
-            {**object, 'artist': UserSerializer(User.objects.get(pk=object['artist'])).data}
+            {**object, 'artist': SimpleUserSerializer(User.objects.get(pk=object['artist'])).data}
             for object in objects
         ]
 
@@ -34,7 +35,7 @@ class ArtworkView(viewsets.ViewSet):
         artwork = get_object_or_404(queryset, pk=pk)
         serialized_artwork = ArtworkSerializer(artwork)
         object = serialized_artwork.data
-        serialized_User = UserSerializer(User.objects.get(pk=artwork.artist.pk))
+        serialized_User = SimpleUserSerializer(User.objects.get(pk=artwork.artist.pk))
         object['artist'] = serialized_User.data
         return Response(object)
     
@@ -154,3 +155,15 @@ class BidView(viewsets.ViewSet):
         bid = Bid.objects.get(pk=pk)
         bid.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
+class TopArtistsView(APIView):
+    def get(self, request):
+        artworks = Artwork.objects.all().filter(status=Artwork.SOLD).order_by('-current_highest_bid')
+        artists = []
+        for artwork in artworks:
+            if artwork.artist not in artists:
+                artists.append(artwork.artist)
+
+        serializer = SimpleUserSerializer(artists, many=True)
+        return Response(serializer.data)
