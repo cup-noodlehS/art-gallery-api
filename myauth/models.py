@@ -39,6 +39,8 @@ class User(AbstractUser):
     phone_number = models.CharField(max_length=15, null=True)
     address = models.TextField(null=True)
     user_type = models.IntegerField(choices=USER_TYPE_CHOICES, default=BUYER)
+    achievements = models.TextField(null=True, blank=True, max_length=500)
+    about = models.TextField(null=True, blank=True, max_length=500)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
