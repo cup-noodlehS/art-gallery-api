@@ -22,12 +22,30 @@ class Artwork(models.Model):
     current_highest_bid = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     status = models.IntegerField(choices=STATUS_CHOICES, default=OPEN)
 
+    class Meta:
+        ordering = ['-created_on']
+
     def __str__(self):
         return self.title
     
 
+class FeaturedArtowrk(models.Model):
+    artwork = models.ForeignKey(Artwork, on_delete=models.CASCADE)
+    featured_on = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-featured_on']
+
+    def __str__(self):
+        return self.artwork.title
+    
+
 class Category(models.Model):
     name = models.CharField(max_length=50, unique=True)
+    
+    @property
+    def artwork_count(self):
+        return Artwork.objects.filter(category=self).count()
 
     def __str__(self):
         return self.name
@@ -39,6 +57,9 @@ class Bid(models.Model):
     is_anonymous = models.BooleanField(default=False)
     bid_amount = models.DecimalField(max_digits=10, decimal_places=2)
     bid_on = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-bid_amount']
 
     def __str__(self):
         return f'{self.user.username} bid {self.bid_amount} on {self.artwork.title}'
@@ -58,6 +79,9 @@ class MessageThread(models.Model):
     buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='buyer_message_threads')
     created_on = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ['-created_on']
+
     @property
     def messages(self):
         return Message.objects.filter(thread=self)
@@ -71,6 +95,9 @@ class Message(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE)
     body = models.TextField()
     sent_on = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['sent_on']
 
     def __str__(self):
         return f'{self.sender.user.username} said {self.body} on {self.sent_on}'

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Artwork, Category, Bid, ArtworkImage, MessageThread, Message
+from .models import Artwork, Category, Bid, ArtworkImage, MessageThread, Message, FeaturedArtowrk
 
 class ArtworkSerializer(serializers.ModelSerializer):
     class Meta:
@@ -34,4 +34,10 @@ class MessageThreadSerializer(serializers.ModelSerializer):
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
+        fields = '__all__'
+
+
+class FeaturedArtowrkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FeaturedArtowrk
         fields = '__all__'
