@@ -24,6 +24,12 @@ class UserView(APIView):
         
         user = get_object_or_404(User, id=payload['id'])
 
+        if datetime.datetime.now() + datetime.timedelta(minutes=20) > payload['exp']:
+            payload['exp'] = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=60)
+            token = jwt.encode(payload, 'secret', algorithm='HS256')
+            response = Response()
+            response.set_cookie(key='jwt', value=token, httponly=True)
+
         return Response(UserSerializer(user).data)
 
 
