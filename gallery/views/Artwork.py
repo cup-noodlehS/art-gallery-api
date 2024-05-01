@@ -16,6 +16,9 @@ class ArtworkView(viewsets.ViewSet):
         queryset = Artwork.objects.all()
 
         filters = {}
+        excludes = {}
+        if request.user:
+            excludes['artist_id'] = request.user.id
         for key in request.query_params.keys():
             filters[key] = request.query_params[key]
 
@@ -24,7 +27,7 @@ class ArtworkView(viewsets.ViewSet):
         size_per_request = 20
 
         if filters:
-            queryset = queryset.filter(**filters)
+            queryset = queryset.filter(**filters).exclude(**excludes)
 
         objects = ArtworkSerializer(queryset, many=True).data
         objects = [
@@ -33,8 +36,13 @@ class ArtworkView(viewsets.ViewSet):
         ]
         if bottom is None:
             bottom = top + size_per_request
+        total_count = len(objects)
         objects = objects[top:bottom]
-        return Response(objects)
+
+        return Response({
+            'total_count': total_count,
+            'objects': objects,
+        })
 
     def retrieve(self, request, pk=None):
         queryset = Artwork.objects.all()

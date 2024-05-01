@@ -8,6 +8,7 @@ class ArtworkSerializer(serializers.ModelSerializer):
     
 
 class CategorySerializer(serializers.ModelSerializer):
+    artwork_count = serializers.IntegerField()
     class Meta:
         model = Category
         fields = '__all__'

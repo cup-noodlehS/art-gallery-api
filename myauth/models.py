@@ -31,13 +31,12 @@ class User(AbstractUser):
         (BUYER, 'Buyer'),
     ]
 
-    name = models.CharField(max_length=100, null=True)
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=100, null=True)
     username = models.CharField(max_length=100, default='Anonymous')
-    avatar_url = models.URLField(null=True)
-    phone_number = models.CharField(max_length=15, null=True)
-    address = models.TextField(null=True)
+    avatar_url = models.URLField(null=True, blank=True)
+    phone_number = models.CharField(max_length=15, null=True, blank=True)
+    address = models.TextField(null=True, blank=True, max_length=100)
     user_type = models.IntegerField(choices=USER_TYPE_CHOICES, default=BUYER)
     achievements = models.TextField(null=True, blank=True, max_length=500)
     about = models.TextField(null=True, blank=True, max_length=500)

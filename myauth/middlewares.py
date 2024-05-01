@@ -17,12 +17,15 @@ class JWTAuthentication:
             if 'Bearer ' in token_header:
                 token = token_header.split('Bearer ')[1]
 
-        if token:
+        try:
             decoded = jwt.decode(token, 'secret', algorithms=['HS256'])
-            user_id = decoded.get('id')
-            if user_id:
-                user = User.objects.filter(id=user_id).first()
-                request.user = user
+        except jwt.ExpiredSignatureError:
+            return self.get_response(request)
+        
+        user_id = decoded.get('id')
+        if user_id:
+            user = User.objects.filter(id=user_id).first()
+            request.user = user
 
         response = self.get_response(request)
         return response

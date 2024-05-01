@@ -11,12 +11,26 @@ class CategoryView(viewsets.ViewSet):
     def list(self, request):
         queryset = Category.objects.all()
 
-        name = request.query_params.get('name')
-        if name:
-            queryset = queryset.filter(name=name)
+        filters = {}
+        for key in request.query_params.keys():
+            filters[key] = request.query_params[key]
+
+        top = filters.pop('top', 0)
+        bottom = filters.pop('bottom', None)
+        size_per_request = 20
+        if bottom is None:
+            bottom = top + size_per_request
+
+        if filters:
+            queryset = queryset.filter(**filters)
 
         serializer = CategorySerializer(queryset, many=True)
-        return Response(serializer.data)
+        total_count = len(serializer.data)
+        objects = serializer.data[top:bottom]
+        return Response({
+            'total_count': total_count,
+            'objects': objects,
+        })
 
     def retrieve(self, request, pk=None):
         queryset = Category.objects.all()
