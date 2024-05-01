@@ -14,7 +14,7 @@ class Artwork(models.Model):
 
     artist = models.ForeignKey(User, on_delete=models.CASCADE, related_name='artworks_created')
     buyer = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='artworks_bought')
-    category = models.ForeignKey('Category', null=True, on_delete=models.SET_NULL)
+    category = models.ForeignKey('Category', null=True, blank=True, on_delete=models.SET_NULL)
     title = models.CharField(max_length=100)
     description = models.TextField()
     created_on = models.DateTimeField(auto_now_add=True)
