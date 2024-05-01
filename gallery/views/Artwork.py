@@ -19,6 +19,10 @@ class ArtworkView(viewsets.ViewSet):
         for key in request.query_params.keys():
             filters[key] = request.query_params[key]
 
+        top = filters.pop('top', 0)
+        bottom = filters.pop('bottom', None)
+        size_per_request = 20
+
         if filters:
             queryset = queryset.filter(**filters)
 
@@ -27,7 +31,9 @@ class ArtworkView(viewsets.ViewSet):
             {**object, 'artist': SimpleUserSerializer(User.objects.get(pk=object['artist'])).data}
             for object in objects
         ]
-
+        if bottom is None:
+            bottom = top + size_per_request
+        objects = objects[top:bottom]
         return Response(objects)
 
     def retrieve(self, request, pk=None):
