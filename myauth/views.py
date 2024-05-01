@@ -14,8 +14,15 @@ from .serializers import UserSerializer
 class UserView(APIView):
     def get(self, request):
         token = request.COOKIES.get('jwt')
-        if not token:
+        token_header = request.headers.get('Authorization')
+
+        if not token and not token_header:
             raise AuthenticationFailed('Unauthenticated!')
+        
+        if not token and token_header:
+            if 'Bearer ' not in token_header:
+                raise AuthenticationFailed('Invalid token format')
+            token = token_header.split('Bearer ')[1]
         
         try:
             payload = jwt.decode(token, 'secret', algorithms=['HS256'])
@@ -24,7 +31,7 @@ class UserView(APIView):
         
         user = get_object_or_404(User, id=payload['id'])
 
-        if datetime.datetime.now() + datetime.timedelta(minutes=20) > payload['exp']:
+        if datetime.datetime.now() + datetime.timedelta(minutes=20) > datetime.datetime.fromtimestamp(payload['exp']):
             payload['exp'] = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=60)
             token = jwt.encode(payload, 'secret', algorithm='HS256')
             response = Response()
