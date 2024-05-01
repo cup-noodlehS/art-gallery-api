@@ -19,8 +19,16 @@ class Artwork(models.Model):
     description = models.TextField()
     created_on = models.DateTimeField(auto_now_add=True)
     starting_bid = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    current_highest_bid = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     status = models.IntegerField(choices=STATUS_CHOICES, default=OPEN)
+
+    @property
+    def current_highest_bid(self):
+        highest_bid = self.bids.first()
+        if highest_bid:
+            return highest_bid.bid_amount
+        if self.starting_bid:
+            return self.starting_bid
+        return 0
 
     class Meta:
         ordering = ['-created_on']
@@ -52,7 +60,7 @@ class Category(models.Model):
     
 
 class Bid(models.Model):
-    artwork = models.ForeignKey(Artwork, on_delete=models.CASCADE)
+    artwork = models.ForeignKey(Artwork, on_delete=models.CASCADE, related_name='bids')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     is_anonymous = models.BooleanField(default=False)
     bid_amount = models.DecimalField(max_digits=10, decimal_places=2)

@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Artwork, Category, Bid, ArtworkImage, MessageThread, Message, FeaturedArtowrk
 
 class ArtworkSerializer(serializers.ModelSerializer):
+    current_highest_bid = serializers.DecimalField(max_digits=10, decimal_places=2)
     class Meta:
         model = Artwork
         fields = '__all__'
