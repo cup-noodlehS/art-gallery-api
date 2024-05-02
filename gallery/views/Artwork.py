@@ -4,6 +4,8 @@ from rest_framework.views import APIView
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.db import transaction
+from faso.utils import string_to_list
+import json
 
 from gallery.models import Artwork, ArtworkImage
 from myauth.models import User
@@ -20,8 +22,15 @@ class ArtworkView(viewsets.ViewSet):
         excludes = {}
         if request.user:
             excludes['artist_id'] = request.user.id
+        print(request.query_params, 'request.query_params')
         for key in request.query_params.keys():
-            filters[key] = request.query_params[key]
+            value = request.query_params[key]
+            if ',' in value:
+                value = [int(v) for v in value.split(',')]
+            filters[key] = value
+                
+
+        print(filters, 'filters')
 
         top = filters.pop('top', 0)
         bottom = filters.pop('bottom', None)

@@ -1,8 +1,17 @@
 from django.contrib import admin
-from .models import Artwork, Category, Bid, MessageThread
+from .models import Artwork, Category, Bid, MessageThread, ArtworkImage, FeaturedArtowrk
 
+class ArtworkImageInline(admin.TabularInline):
+    model = ArtworkImage
+    extra = 0
 
-admin.site.register(Artwork)
+class ArtworkAdmin(admin.ModelAdmin):
+    inlines = [ArtworkImageInline]
+    list_display = ('title', 'artist', 'status', 'current_highest_bid', 'created_on')  # Corrected 'price' to 'current_highest_bid'
+    list_filter = ('status',)
+    search_fields = ('title', 'artist__username')
+
+admin.site.register(Artwork, ArtworkAdmin)
 admin.site.register(Category)
 admin.site.register(Bid)
 admin.site.register(MessageThread)

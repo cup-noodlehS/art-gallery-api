@@ -7,11 +7,20 @@ class ArtworkImageSerializer(serializers.ModelSerializer):
         model = ArtworkImage
         fields = '__all__'
 
+
+class CategorySerializer(serializers.ModelSerializer):
+    artwork_count = serializers.IntegerField()
+    class Meta:
+        model = Category
+        fields = '__all__'
+
+
 class ArtworkSerializer(serializers.ModelSerializer):
     current_highest_bid = serializers.DecimalField(max_digits=10, decimal_places=2)
     slug = serializers.CharField()
     images = ArtworkImageSerializer(many=True)
     first_image = ArtworkImageSerializer()
+    category = CategorySerializer()
     class Meta:
         model = Artwork
         fields = '__all__'
@@ -22,11 +31,6 @@ class SimpleArtworkSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'slug', 'first_image']
     
 
-class CategorySerializer(serializers.ModelSerializer):
-    artwork_count = serializers.IntegerField()
-    class Meta:
-        model = Category
-        fields = '__all__'
 
 
 class BidSerializer(serializers.ModelSerializer):

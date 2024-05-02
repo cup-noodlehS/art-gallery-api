@@ -26,7 +26,7 @@ class Artwork(models.Model):
         highest_bid = self.bids.first()
         if highest_bid:
             return highest_bid.bid_amount
-        return 0
+        return None
     
     @property
     def images(self):
