@@ -7,6 +7,14 @@ Run `python --version`
 
 It should show `Python 3.10.11`, if not, please install or update python version
 
+## Navigate to desired location
+for example:
+```
+PS C:\Users\User> cd .\Desktop\
+PS C:\Users\User\Desktop> cd .\127\
+PS C:\Users\User\Desktop\127>
+```
+
 ## Install Git
 https://gitforwindows.org
 
@@ -82,9 +90,9 @@ PS C:\Users\User\Desktop\127>
 `venv/scripts/activate`
 
 ### Check if there are updtes in github repository
-`git fetch origin`
+```git fetch origin```
 
-`git status`
+```git status```
 
 It shoud show this if there are no changes:
 ```
