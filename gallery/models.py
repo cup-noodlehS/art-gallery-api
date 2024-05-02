@@ -15,7 +15,7 @@ class Artwork(models.Model):
     artist = models.ForeignKey(User, on_delete=models.CASCADE, related_name='artworks_created')
     buyer = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='artworks_bought')
     category = models.ForeignKey('Category', null=True, blank=True, on_delete=models.SET_NULL)
-    title = models.CharField(max_length=100)
+    title = models.CharField(max_length=50)
     description = models.TextField()
     created_on = models.DateTimeField(auto_now_add=True)
     starting_bid = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
@@ -31,6 +31,20 @@ class Artwork(models.Model):
     @property
     def images(self):
         return self.images.all()
+    
+    @property
+    def slug(self):
+        alpha_title = ''
+        for char in self.title:
+            if char.isalnum():
+                alpha_title += char.toLowerCase()
+            elif char == ' ':
+                alpha_title += '-'
+        return f"{self.pk}-{alpha_title}"
+    
+    @property
+    def first_image_url(self):
+        return self.images.first().image_url
 
     class Meta:
         ordering = ['-created_on']
