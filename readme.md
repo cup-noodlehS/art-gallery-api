@@ -87,12 +87,18 @@ PS C:\Users\User\Desktop> cd .\127\
 PS C:\Users\User\Desktop\127>
 ```
 ### Run virtual environment
-`venv/scripts/activate`
+```
+venv/scripts/activate
+```
 
 ### Check if there are updtes in github repository
-```git fetch origin```
+````
+git fetch origin
+````
 
-```git status```
+```
+git status
+```
 
 It shoud show this if there are no changes:
 ```
@@ -102,4 +108,6 @@ Your branch is up to date with 'origin/main'.
 If not, please do the instructions above this -> **What to do if there are new changes pushed to the github repository**
 
 ### Run the program
-`python manage.py runserver`
+```
+python manage.py runserver
+```
