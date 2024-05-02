@@ -3,11 +3,12 @@ from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework import status
 from django.shortcuts import get_object_or_404
+from django.db import transaction
 
-from gallery.models import Artwork
+from gallery.models import Artwork, ArtworkImage
 from myauth.models import User
 from myauth.serializers import SimpleUserSerializer
-from gallery.serializers import ArtworkSerializer
+from gallery.serializers import ArtworkSerializer, ArtworkImageSerializer
 from gallery.permissions import IsArtworkOwner
 
 
@@ -59,12 +60,38 @@ class ArtworkView(viewsets.ViewSet):
         return []
 
     def create(self, request):
-        serializer = ArtworkSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        artwork_data = request.data
+        image_urls = artwork_data.pop('image_urls', [])
+        artwork_serializer = ArtworkSerializer(data=artwork_data)
 
+        with transaction.atomic():
+            if artwork_serializer.is_valid():
+                artwork_instance = artwork_serializer.save()
+            else:
+                return Response(artwork_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            image_errors = []
+            for image_url in image_urls:
+                artwork_image_data = {
+                    'artwork': artwork_instance.id,
+                    'image_url': image_url
+                }
+                artwork_image_serializer = ArtworkImageSerializer(data=artwork_image_data)
+                if artwork_image_serializer.is_valid():
+                    artwork_image_serializer.save()
+                else:
+                    image_errors.append(artwork_image_serializer.errors)
+
+            if image_errors:
+                return Response(image_errors, status=status.HTTP_400_BAD_REQUEST)
+
+        response_data = {
+            'artwork': artwork_serializer.data,
+            'images': ArtworkImageSerializer(ArtworkImage.objects.filter(artwork=artwork_instance.id), many=True).data
+        }
+        return Response(response_data, status=status.HTTP_201_CREATED)
+
+    # TODO: Deal with images
     def update(self, request, pk=None):
         artwork = Artwork.objects.get(pk=pk)
         serializer = ArtworkSerializer(artwork, data=request.data)
