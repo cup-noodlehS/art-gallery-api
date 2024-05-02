@@ -37,14 +37,15 @@ class Artwork(models.Model):
         alpha_title = ''
         for char in self.title:
             if char.isalnum():
-                alpha_title += char.toLowerCase()
+                alpha_title += char.lower()
             elif char == ' ':
                 alpha_title += '-'
         return f"{self.pk}-{alpha_title}"
+
     
     @property
-    def first_image_url(self):
-        return self.images.first().image_url
+    def first_image(self):
+        return self.images.first()
 
     class Meta:
         ordering = ['-created_on']
