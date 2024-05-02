@@ -26,9 +26,11 @@ class Artwork(models.Model):
         highest_bid = self.bids.first()
         if highest_bid:
             return highest_bid.bid_amount
-        if self.starting_bid:
-            return self.starting_bid
         return 0
+    
+    @property
+    def images(self):
+        return self.images.all()
 
     class Meta:
         ordering = ['-created_on']
@@ -74,7 +76,7 @@ class Bid(models.Model):
     
 
 class ArtworkImage(models.Model):
-    artwork = models.ForeignKey(Artwork, on_delete=models.CASCADE)
+    artwork = models.ForeignKey(Artwork, on_delete=models.CASCADE, related_name='images')
     image_url = models.URLField()
 
     def __str__(self):
