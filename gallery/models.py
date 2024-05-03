@@ -19,6 +19,7 @@ class Artwork(models.Model):
     description = models.TextField()
     created_on = models.DateTimeField(auto_now_add=True)
     starting_bid = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    viewers_count = models.IntegerField(default=0)
     status = models.IntegerField(choices=STATUS_CHOICES, default=OPEN)
 
     @property
