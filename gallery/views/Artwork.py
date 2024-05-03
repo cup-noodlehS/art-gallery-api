@@ -61,6 +61,8 @@ class ArtworkView(viewsets.ViewSet):
         object = serialized_artwork.data
         serialized_User = SimpleUserSerializer(User.objects.get(pk=artwork.artist.pk))
         object['artist'] = serialized_User.data
+        artwork.viewers_count += 1
+        artwork.save(update_fields=['viewers_count'])
         return Response(object)
     
     def get_permissions(self):
