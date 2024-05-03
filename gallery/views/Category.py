@@ -17,6 +17,11 @@ class CategoryView(viewsets.ViewSet):
 
         top = filters.pop('top', 0)
         bottom = filters.pop('bottom', None)
+        if top != 0:
+            top = int(top)
+        if bottom is not None:
+            bottom = int(bottom)
+
         size_per_request = 20
         if bottom is None:
             bottom = top + size_per_request
