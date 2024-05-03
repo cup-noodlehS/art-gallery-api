@@ -31,8 +31,8 @@ class UserView(APIView):
         
         user = get_object_or_404(User, id=payload['id'])
 
-        if datetime.datetime.now() + datetime.timedelta(minutes=20) > datetime.datetime.fromtimestamp(payload['exp']):
-            payload['exp'] = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=60)
+        if datetime.datetime.now() + datetime.timedelta(days=2) > datetime.datetime.fromtimestamp(payload['exp']):
+            payload['exp'] = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=7)
             token = jwt.encode(payload, 'secret', algorithm='HS256')
             response = Response()
             response.set_cookie(key='jwt', value=token, httponly=True)
@@ -62,7 +62,7 @@ class Login(APIView):
         
         payload = {
             'id': user.id,
-            'exp': datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=60),
+            'exp': datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=7),
             'iat': datetime.datetime.now(datetime.timezone.utc)
         }
 
