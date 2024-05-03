@@ -7,7 +7,7 @@ from django.db import transaction
 from faso.utils import string_to_list
 import json
 
-from gallery.models import Artwork, ArtworkImage
+from gallery.models import Artwork, ArtworkImage, FeaturedArtowrk
 from myauth.models import User
 from myauth.serializers import SimpleUserSerializer
 from gallery.serializers import ArtworkSerializer, ArtworkImageSerializer
@@ -34,16 +34,17 @@ class ArtworkView(viewsets.ViewSet):
 
         top = filters.pop('top', 0)
         bottom = filters.pop('bottom', None)
+        if top is not None:
+            top = int(top)
+        if bottom is not None:
+            bottom = int(bottom)
+        
         size_per_request = 20
 
         if filters:
             queryset = queryset.filter(**filters).exclude(**excludes)
 
         objects = ArtworkSerializer(queryset, many=True).data
-        objects = [
-            {**object, 'artist': SimpleUserSerializer(User.objects.get(pk=object['artist'])).data}
-            for object in objects
-        ]
         if bottom is None:
             bottom = top + size_per_request
         total_count = len(objects)
@@ -119,11 +120,22 @@ class ArtworkView(viewsets.ViewSet):
 
 class TopArtistsView(APIView):
     def get(self, request):
-        artworks = Artwork.objects.all().filter(status=Artwork.SOLD).order_by('-current_highest_bid')
+        artworks = Artwork.objects.all().order_by('-viewers_count')[:10]
         artists = []
         for artwork in artworks:
             if artwork.artist not in artists:
                 artists.append(artwork.artist)
 
         serializer = SimpleUserSerializer(artists, many=True)
+        return Response(serializer.data)
+    
+
+class FeaturedArtworkView(APIView):
+    def get(self, request):
+        featured_artworks = FeaturedArtowrk.objects.order_by('-featured_on')[:5]
+        artworks = []
+        for featured_artwork in featured_artworks:
+            artworks.append(featured_artwork.artwork)
+
+        serializer = ArtworkSerializer(artworks, many=True)
         return Response(serializer.data)

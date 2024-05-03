@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Artwork, Category, Bid, ArtworkImage, MessageThread, Message, FeaturedArtowrk
+from myauth.serializers import SimpleUserSerializer
 
 
 class ArtworkImageSerializer(serializers.ModelSerializer):
@@ -21,6 +22,7 @@ class ArtworkSerializer(serializers.ModelSerializer):
     images = ArtworkImageSerializer(many=True)
     first_image = ArtworkImageSerializer()
     category = CategorySerializer()
+    artist = SimpleUserSerializer()
     class Meta:
         model = Artwork
         fields = '__all__'
