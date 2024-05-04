@@ -62,7 +62,7 @@ class Login(APIView):
         
         payload = {
             'id': user.id,
-            'exp': datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=7),
+            'exp': datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=365),
             'iat': datetime.datetime.now(datetime.timezone.utc)
         }
 
@@ -86,3 +86,12 @@ class Logout(APIView):
             'message': 'success'
         }
         return response
+
+
+class EmailCheckerView(APIView):
+    def get(self, request):
+        email = request.query_params.get('email')
+        user = User.objects.filter(email=email).first()
+        if user:
+            return Response({'is_available': False})
+        return Response({'is_available': True})
