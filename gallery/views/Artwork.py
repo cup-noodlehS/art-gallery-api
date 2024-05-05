@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.db import transaction
+from django.db.models import Q
 from faso.utils import string_to_list
 import json
 
@@ -30,7 +31,7 @@ class ArtworkView(viewsets.ViewSet):
             filters[key] = value
                 
 
-        print(filters, 'filters')
+        search_key = filters.pop('search_key', None)
 
         top = filters.pop('top', 0)
         bottom = filters.pop('bottom', None)
@@ -40,6 +41,13 @@ class ArtworkView(viewsets.ViewSet):
             bottom = int(bottom)
         
         size_per_request = 20
+
+        if search_key is not None:
+                search_key = search_key.lower()
+                queryset = queryset.filter(
+                    Q(title__icontains=search_key) | 
+                    Q(artist__username__icontains=search_key)
+                )
 
         if filters:
             queryset = queryset.filter(**filters).exclude(**excludes)
