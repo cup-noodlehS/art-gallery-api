@@ -21,6 +21,7 @@ class Artwork(models.Model):
     starting_bid = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     viewers_count = models.IntegerField(default=0)
     status = models.IntegerField(choices=STATUS_CHOICES, default=OPEN)
+    sold_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
     @property
     def current_highest_bid(self):

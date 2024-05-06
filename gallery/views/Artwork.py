@@ -40,7 +40,7 @@ class ArtworkView(viewsets.ViewSet):
         if bottom is not None:
             bottom = int(bottom)
         
-        size_per_request = 20
+        size_per_request = 21
 
         if search_key is not None:
                 search_key = search_key.lower()

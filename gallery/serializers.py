@@ -10,7 +10,7 @@ class ArtworkImageSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
-    artwork_count = serializers.IntegerField()
+    artwork_count = serializers.ReadOnlyField()
     class Meta:
         model = Category
         fields = '__all__'
