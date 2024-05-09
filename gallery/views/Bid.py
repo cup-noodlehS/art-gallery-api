@@ -9,6 +9,7 @@ from gallery.permissions import IsBidOwner
 
 
 class BidView(viewsets.ViewSet):
+    permission_classes = [IsBidOwner]
     def list(self, request):
         queryset = Bid.objects.all()
 
@@ -28,11 +29,6 @@ class BidView(viewsets.ViewSet):
         serializer = BidSerializer(bid)
         return Response(serializer.data)
     
-    def get_permissions(self):
-        if self.action in ['update', 'destroy']:
-            return [IsBidOwner()]
-        return []
-
     def create(self, request):
         serializer = BidSerializer(data=request.data)
         if serializer.is_valid():

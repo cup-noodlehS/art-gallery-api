@@ -16,6 +16,7 @@ from gallery.permissions import IsArtworkOwner
 
 
 class ArtworkView(viewsets.ViewSet):
+    permission_classes = [IsArtworkOwner]
     def list(self, request):
         queryset = Artwork.objects.all()
 
@@ -73,11 +74,6 @@ class ArtworkView(viewsets.ViewSet):
         artwork.viewers_count += 1
         artwork.save(update_fields=['viewers_count'])
         return Response(object)
-    
-    def get_permissions(self):
-        if self.action in ['update', 'destroy']:
-            return [IsArtworkOwner()]
-        return []
 
     def create(self, request):
         artwork_data = request.data
