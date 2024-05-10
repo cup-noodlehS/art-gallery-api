@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -136,11 +140,11 @@ AUTH_USER_MODEL = 'myauth.User'
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 
-JWT_SECRET = 'secret'
+JWT_SECRET = os.environ.get('JWT_SECRET')
 
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'dhpihshcf',
-    'API_KEY': '251488126287728',
-    'API_SECRET': 'bfShBnwSani25khCTpjMVMjL7I0',
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
 }
 
