@@ -5,8 +5,6 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django.db.models import Q
-from faso.utils import string_to_list
-import json
 
 from gallery.models import Artwork, ArtworkImage, FeaturedArtowrk
 from myauth.models import User
