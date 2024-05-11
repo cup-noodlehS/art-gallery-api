@@ -1,14 +1,19 @@
 from django.shortcuts import render
+from django.core.files.base import ContentFile
 from rest_framework.views import APIView
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 import jwt, datetime
+import cloudinary
+from cloudinary.uploader import upload
 
 from .models import User
 from .serializers import UserSerializer
+from faso.utils import upload_to_cloudinary
 
 
 class UserView(APIView):
@@ -42,10 +47,24 @@ class UserView(APIView):
 
 class Register(APIView):
     def post(self, request):
-        serializer = UserSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        data = request.data.copy()
+        avatar_files = data.pop('avatar_file', None)
+        if avatar_files is not None:
+            try:
+                data['avatar_url'] = upload_to_cloudinary(avatar_files, 'pfp')
+            except:
+                return Response({'error': 'Error uploading image'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        serializer = UserSerializer(data=data)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except ValidationError as e:
+            print(e.detail)
+            return Response({'error': 'Validation Error'}, status=status.HTTP_400_BAD_REQUEST)
+
         serializer.save()
         return Response(serializer.data)
+
     
 
 class Login(APIView):
