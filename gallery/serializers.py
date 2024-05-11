@@ -4,6 +4,7 @@ from myauth.serializers import SimpleUserSerializer
 
 
 class ArtworkImageSerializer(serializers.ModelSerializer):
+    artwork = serializers.PrimaryKeyRelatedField(queryset=Artwork.objects.all(), write_only=True)
     class Meta:
         model = ArtworkImage
         fields = '__all__'
