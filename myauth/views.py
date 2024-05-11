@@ -47,14 +47,7 @@ class UserView(APIView):
 
 class Register(APIView):
     def post(self, request):
-        data = request.data.copy()
-        avatar_files = data.pop('avatar_file', None)
-        if avatar_files is not None:
-            try:
-                data['avatar_url'] = upload_to_cloudinary(avatar_files, 'pfp')
-            except:
-                return Response({'error': 'Error uploading image'}, status=status.HTTP_400_BAD_REQUEST)
-            
+        data = request.data
         serializer = UserSerializer(data=data)
         try:
             serializer.is_valid(raise_exception=True)
