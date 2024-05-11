@@ -51,7 +51,6 @@ INSTALLED_APPS = [
 ASGI_APPLICATION = 'faso.asgi.application'
 
 MIDDLEWARE = [
-    'myauth.middlewares.JWTAuthentication',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -60,6 +59,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'myauth.middlewares.JWTAuthentication',
 ]
 
 ROOT_URLCONF = 'faso.urls'
