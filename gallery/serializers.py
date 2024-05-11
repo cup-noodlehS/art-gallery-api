@@ -17,12 +17,13 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class ArtworkSerializer(serializers.ModelSerializer):
-    current_highest_bid = serializers.DecimalField(max_digits=10, decimal_places=2)
-    slug = serializers.CharField()
-    images = ArtworkImageSerializer(many=True)
-    first_image = ArtworkImageSerializer()
-    category = CategorySerializer()
-    artist = SimpleUserSerializer()
+    current_highest_bid = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    slug = serializers.CharField(read_only=True)
+    images = ArtworkImageSerializer(many=True, read_only=True)
+    first_image = ArtworkImageSerializer(read_only=True)
+    category = CategorySerializer(read_only=True)
+    artist = SimpleUserSerializer(read_only=True)
+    artist_id = serializers.IntegerField(write_only=True)
     class Meta:
         model = Artwork
         fields = '__all__'
