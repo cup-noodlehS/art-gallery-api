@@ -69,8 +69,9 @@ class ArtworkView(viewsets.ViewSet):
         object = serialized_artwork.data
         serialized_User = SimpleUserSerializer(User.objects.get(pk=artwork.artist.pk))
         object['artist'] = serialized_User.data
-        artwork.viewers_count += 1
-        artwork.save(update_fields=['viewers_count'])
+        if not request.user or request.user.id != artwork.artist_id:
+            artwork.viewers_count += 1
+            artwork.save(update_fields=['viewers_count'])
         return Response(object)
 
     def create(self, request):
