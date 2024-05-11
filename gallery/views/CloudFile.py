@@ -27,7 +27,6 @@ class CloudFile(APIView):
         folder = request.data.get('folder', None)
         print(request.data, 'request')
         if file_url is not None and folder is not None:
-            print('heree')
             try:
                 res = delete_from_cloudinary(file_url, folder)
                 return Response(res)
