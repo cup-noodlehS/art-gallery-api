@@ -23,6 +23,9 @@ def upload_to_cloudinary(file, folder, width=300, height=300, crop='fill'):
     
 
 def delete_from_cloudinary(url, folder):
+    print('\n\n\n\n\n\n\n\n');
+    print('DELETE WAS CALLED')
+    print('\n\n\n\n\n\n\n\n');
     public_id = folder + url.split('/')[-1].split('.')[0]
     try:
         result = cloudinary.uploader.destroy(public_id)
