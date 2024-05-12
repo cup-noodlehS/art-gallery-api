@@ -9,7 +9,6 @@ from gallery.permissions import IsBidOwner
 
 
 class BidView(viewsets.ViewSet):
-    permission_classes = [IsBidOwner]
     def list(self, request):
         queryset = Bid.objects.all()
 
