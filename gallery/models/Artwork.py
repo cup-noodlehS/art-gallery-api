@@ -48,6 +48,10 @@ class Artwork(models.Model):
     @property
     def first_image(self):
         return self.images.first()
+    
+    @property
+    def bids_count(self):
+        return self.bids.count()
 
     class Meta:
         ordering = ['-created_on']
