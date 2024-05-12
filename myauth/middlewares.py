@@ -1,6 +1,6 @@
 import jwt
-from django.conf import settings
-from .models import User
+from django.utils.functional import SimpleLazyObject
+from django.contrib.auth import get_user_model
 
 
 class JWTAuthentication:
@@ -23,8 +23,9 @@ class JWTAuthentication:
         
         user_id = decoded.get('id')
         if user_id:
-            user = User.objects.filter(id=user_id).first()
-            request.user = user
+            User = get_user_model()
+            request_user = User.objects.get(pk=user_id)
+            # request.user = SimpleLazyObject(lambda: request_user) # i get CSRF Failed: CSRF cookie not set when i change the request.user, fix this
 
         response = self.get_response(request)
         return response

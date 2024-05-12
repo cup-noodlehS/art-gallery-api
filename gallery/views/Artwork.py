@@ -5,6 +5,7 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django.db.models import Q
+from django.views.decorators.csrf import csrf_exempt
 
 from gallery.models import Artwork, ArtworkImage, FeaturedArtowrk
 from myauth.models import User
@@ -14,7 +15,6 @@ from gallery.permissions import IsArtworkOwner
 
 
 class ArtworkView(viewsets.ViewSet):
-    permission_classes = [IsArtworkOwner]
     def list(self, request):
         queryset = Artwork.objects.all()
 
@@ -63,6 +63,7 @@ class ArtworkView(viewsets.ViewSet):
         })
 
     def retrieve(self, request, pk=None):
+        print(request.user, 'request.user')
         queryset = Artwork.objects.all()
         artwork = get_object_or_404(queryset, pk=pk)
         serialized_artwork = ArtworkSerializer(artwork)
@@ -106,7 +107,6 @@ class ArtworkView(viewsets.ViewSet):
         }
         return Response(response_data, status=status.HTTP_201_CREATED)
 
-    # TODO: Deal with images
     def update(self, request, pk=None):
         artwork = Artwork.objects.get(pk=pk)
         serializer = ArtworkSerializer(artwork, data=request.data)
@@ -117,6 +117,8 @@ class ArtworkView(viewsets.ViewSet):
 
     def destroy(self, request, pk=None):
         artwork = Artwork.objects.get(pk=pk)
+        # if request.user.id != artwork.artist_id:
+        #     return Response(status=status.HTTP_403_FORBIDDEN)
         artwork.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
