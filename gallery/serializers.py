@@ -25,7 +25,7 @@ class ArtworkSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
     artist = SimpleUserSerializer(read_only=True)
     artist_id = serializers.IntegerField(write_only=True)
-    category_id = serializers.IntegerField(write_only=True)
+    category_id = serializers.IntegerField(write_only=True, required=False, allow_null=True)
     class Meta:
         model = Artwork
         fields = '__all__'
