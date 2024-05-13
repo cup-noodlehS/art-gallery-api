@@ -58,7 +58,7 @@ python manage.py migrate
 > Note: The image upload and delete would only work if you have a cloudinary account
 
 - inside the repo, create a file named `.env`
-- copy this in your `.env` file then input your cloudinary credentials, e.g, replace "<name>" with your cloudinary cloud name
+- copy this in your `.env` file then input your cloudinary credentials, e.g., replace `<name>` with your cloudinary cloud name
 ```
 CLOUDINARY_CLOUD_NAME=<name>
 CLOUDINARY_API_KEY=<key>
