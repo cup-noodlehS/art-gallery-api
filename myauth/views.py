@@ -107,3 +107,33 @@ class EmailCheckerView(APIView):
         if user:
             return Response({'is_available': False})
         return Response({'is_available': True})
+    
+
+class GalleryUsers(viewsets.ViewSet):
+    def list(self, request):
+        query_set = User.objects.all()
+        filters = {}
+        for key in request.query_params.keys():
+            filters[key] = request.query_params[key]
+        
+        top = filters.pop('top', 0)
+        size_per_request = 20
+        if filters:
+            query_set = query_set.filter(*filters)
+
+        objects = UserSerializer(query_set, many=True).data
+        total_count = len(objects)
+        objects = objects[top:top + size_per_request]
+
+        return Response({
+            'total_count': total_count,
+            'objects': objects
+        })
+    
+    def retrieve(self, request, pk=None):
+        if pk is None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        
+        object = User.objects.get(pk=pk)
+        serialized = UserSerializer(object)
+        return Response(serialized.data)
