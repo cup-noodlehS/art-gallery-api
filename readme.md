@@ -1,4 +1,4 @@
-# How to setup
+# How to setup  
 
 ## Check python version
 Open Your terminal
@@ -53,6 +53,19 @@ pip install requirements.txt
 ```
 python manage.py migrate
 ```
+
+### Add Cloudinary Credentials if you want to upload and delete images
+> Note: The image upload and delete would only work if you have a cloudinary account
+
+- inside the repo, create a file named `.env`
+- copy this in your `.env` file then input your cloudinary credentials, e.g., replace `<name>` with your cloudinary cloud name
+```
+CLOUDINARY_CLOUD_NAME=<name>
+CLOUDINARY_API_KEY=<key>
+CLOUDINARY_API_SECRET=<secret>
+JWT_SECRET=secret
+```
+
 ### Run the program
 ```
 python manage.py runserver
