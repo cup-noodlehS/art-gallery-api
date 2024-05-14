@@ -34,7 +34,7 @@ class ArtworkSerializer(serializers.ModelSerializer):
 
 class SimpleArtworkSerializer(serializers.ModelSerializer):
     class Meta(ArtworkSerializer.Meta):
-        fields = ['id', 'title', 'slug', 'first_image']
+        fields = ['id', 'title', 'slug']
     
 
 
@@ -42,6 +42,8 @@ class SimpleArtworkSerializer(serializers.ModelSerializer):
 class BidSerializer(serializers.ModelSerializer):
     user = SimpleUserSerializer(read_only=True)
     user_id = serializers.IntegerField()
+    artwork = SimpleArtworkSerializer(read_only=True)
+    artwork_id = serializers.IntegerField(write_only=True)
     class Meta:
         model = Bid
         fields = '__all__'
