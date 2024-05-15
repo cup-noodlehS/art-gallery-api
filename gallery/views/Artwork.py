@@ -15,6 +15,7 @@ from gallery.permissions import IsArtworkOwner
 
 
 class ArtworkView(viewsets.ViewSet):
+    permission_classes = [IsArtworkOwner]
     def list(self, request):
         queryset = Artwork.objects.all()
 
@@ -117,8 +118,6 @@ class ArtworkView(viewsets.ViewSet):
 
     def destroy(self, request, pk=None):
         artwork = Artwork.objects.get(pk=pk)
-        # if request.user.id != artwork.artist_id:
-        #     return Response(status=status.HTTP_403_FORBIDDEN)
         artwork.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
