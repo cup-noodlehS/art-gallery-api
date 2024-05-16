@@ -136,7 +136,7 @@ class TopArtistsView(APIView):
 
 class FeaturedArtworkView(APIView):
     def get(self, request):
-        featured_artworks = FeaturedArtowrk.objects.order_by('-featured_on')[:5]
+        featured_artworks = FeaturedArtowrk.objects.order_by('-date')[:5]
         artworks = []
         for featured_artwork in featured_artworks:
             artworks.append(featured_artwork.artwork)

@@ -5,8 +5,12 @@ class ArtworkImageInline(admin.TabularInline):
     model = ArtworkImage
     extra = 0
 
+class FeaturedArtworkInline(admin.TabularInline):
+    model = FeaturedArtowrk
+    extra = 0
+
 class ArtworkAdmin(admin.ModelAdmin):
-    inlines = [ArtworkImageInline]
+    inlines = [ArtworkImageInline, FeaturedArtworkInline]
     list_display = ('title', 'artist', 'status', 'current_highest_bid', 'created_on')  # Corrected 'price' to 'current_highest_bid'
     list_filter = ('status',)
     search_fields = ('title', 'artist__username')
