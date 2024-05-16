@@ -72,9 +72,10 @@ class FeaturedArtowrk(models.Model):
     artwork = models.ForeignKey(Artwork, on_delete=models.CASCADE)
     date = models.DateField(null=True)
     image_url = models.URLField(null=True, blank=True)
+    added_on = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-date']
+        ordering = ['added_on']
 
     def __str__(self):
         return self.artwork.title

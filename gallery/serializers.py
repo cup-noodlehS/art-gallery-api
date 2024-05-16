@@ -63,6 +63,7 @@ class MessageSerializer(serializers.ModelSerializer):
 
 
 class FeaturedArtowrkSerializer(serializers.ModelSerializer):
+    artwork = ArtworkSerializer(read_only=True)
     class Meta:
         model = FeaturedArtowrk
         fields = '__all__'

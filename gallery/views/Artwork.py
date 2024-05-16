@@ -6,11 +6,12 @@ from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
+import datetime
 
 from gallery.models import Artwork, ArtworkImage, FeaturedArtowrk
 from myauth.models import User
 from myauth.serializers import SimpleUserSerializer
-from gallery.serializers import ArtworkSerializer, ArtworkImageSerializer
+from gallery.serializers import ArtworkSerializer, ArtworkImageSerializer, FeaturedArtowrkSerializer
 from gallery.permissions import IsArtworkOwner
 
 
@@ -136,10 +137,6 @@ class TopArtistsView(APIView):
 
 class FeaturedArtworkView(APIView):
     def get(self, request):
-        featured_artworks = FeaturedArtowrk.objects.order_by('-date')[:5]
-        artworks = []
-        for featured_artwork in featured_artworks:
-            artworks.append(featured_artwork.artwork)
-
-        serializer = ArtworkSerializer(artworks, many=True)
+        featured_artworks = FeaturedArtowrk.objects.filter(date__lte=datetime.date.today())[:5]
+        serializer = FeaturedArtowrkSerializer(featured_artworks, many=True)
         return Response(serializer.data)
