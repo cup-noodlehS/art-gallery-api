@@ -33,6 +33,7 @@ class ArtworkView(viewsets.ViewSet):
                 
 
         search_key = filters.pop('search_key', None)
+        order = filters.pop('order_by', None)
 
         top = filters.pop('top', 0)
         bottom = filters.pop('bottom', None)
@@ -49,6 +50,8 @@ class ArtworkView(viewsets.ViewSet):
                     Q(title__icontains=search_key) | 
                     Q(artist__username__icontains=search_key)
                 )
+        if order is not None:
+            queryset = queryset.order_by(order)
 
         if filters:
             queryset = queryset.filter(**filters).exclude(**excludes)
@@ -125,9 +128,12 @@ class ArtworkView(viewsets.ViewSet):
 
 class TopArtistsView(APIView):
     def get(self, request):
-        artworks = Artwork.objects.all().order_by('-viewers_count')[:10]
+        artworks = Artwork.objects.filter(created_on__gte=datetime.date.today() - datetime.timedelta(days=30))\
+                    .order_by('-viewers_count')
         artists = []
         for artwork in artworks:
+            if len(artists) == 10:
+                break
             if artwork.artist not in artists:
                 artists.append(artwork.artist)
 
