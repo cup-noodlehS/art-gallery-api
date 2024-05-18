@@ -143,6 +143,6 @@ class TopArtistsView(APIView):
 
 class FeaturedArtworkView(APIView):
     def get(self, request):
-        featured_artworks = FeaturedArtowrk.objects.filter(date__lte=datetime.date.today())[:5]
+        featured_artworks = FeaturedArtowrk.objects.filter(date__lte=datetime.date.today()).order_by('-added_on')[:5]
         serializer = FeaturedArtowrkSerializer(featured_artworks, many=True)
         return Response(serializer.data)
