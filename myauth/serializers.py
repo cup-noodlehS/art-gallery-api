@@ -2,10 +2,12 @@ from rest_framework import serializers
 from .models import User
 
 class UserSerializer(serializers.ModelSerializer):
+    is_banned = serializers.BooleanField(read_only=True)
     class Meta:
         model = User
         fields = ['id', 'first_name', 'last_name', 'email', 'username', 'avatar_url',
-                    'phone_number', 'location', 'user_type', 'user_type_display', 'about', 'achievements']
+                    'phone_number', 'location', 'user_type', 'user_type_display',
+                    'about', 'achievements', 'is_banned']
         extra_kwargs = {'password': {'write_only': True}}
         
     def create(self, validated_data):

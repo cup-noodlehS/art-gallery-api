@@ -20,6 +20,8 @@ from myauth.utils import get_user
 class UserView(APIView):
     def get(self, request):
         user = get_user(request)
+        if user.is_banned:
+            return Response({'error': 'User is banned'}, status=status.HTTP_403_FORBIDDEN)
         return Response(UserSerializer(user).data)
 
 
@@ -45,10 +47,10 @@ class Login(APIView):
 
         user = User.objects.filter(email=email).first()
         if user is None:
-            raise AuthenticationFailed('User not found!')
+            raise AuthenticationFailed('Incorrect email or password')
         
         if not user.check_password(password):
-            raise AuthenticationFailed('Incorrect password!')
+            raise AuthenticationFailed('Incorrect email or password')
         
         payload = {
             'id': user.id,

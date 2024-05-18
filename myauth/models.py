@@ -40,6 +40,7 @@ class User(AbstractUser):
     user_type = models.IntegerField(choices=USER_TYPE_CHOICES, default=BUYER, null=True, blank=True)
     achievements = models.TextField(null=True, blank=True, max_length=5000)
     about = models.TextField(null=True, blank=True, max_length=5000)
+    is_banned = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
