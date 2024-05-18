@@ -79,3 +79,16 @@ class FeaturedArtowrk(models.Model):
 
     def __str__(self):
         return self.artwork.title
+    
+
+class ArtworkNotification(models.Model):
+    artwork = models.ForeignKey(Artwork, on_delete=models.CASCADE)
+    members = models.ManyToManyField(User)
+    message = models.TextField()
+    created_on = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_on']
+
+    def __str__(self):
+        return self.artwork.title
