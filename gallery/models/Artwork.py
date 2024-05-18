@@ -52,6 +52,10 @@ class Artwork(models.Model):
     @property
     def bids_count(self):
         return self.bids.count()
+    
+    @property
+    def likes_count(self):
+        return self.likes.count()
 
     class Meta:
         ordering = ['-created_on']

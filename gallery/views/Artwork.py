@@ -22,9 +22,8 @@ class ArtworkView(viewsets.ViewSet):
 
         filters = {}
         excludes = {}
-        if request.user:
-            excludes['artist_id'] = request.user.id
-        print(request.query_params, 'request.query_params')
+        # if request.user:
+        #     excludes['artist_id'] = request.user.id
         for key in request.query_params.keys():
             value = request.query_params[key]
             if ',' in value:

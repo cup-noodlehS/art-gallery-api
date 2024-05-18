@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (ArtworkView, CategoryView, BidView, TopArtistsView,
-                    TransactionView, FeaturedArtworkView, CloudFile)
+                    TransactionView, FeaturedArtworkView, CloudFile, LikeView)
 
 urlpatterns = [
     path('artworks/', ArtworkView.as_view({'get': 'list', 'post': 'create'})),
@@ -13,4 +13,6 @@ urlpatterns = [
     path('transactions/<int:thread_pk>/', TransactionView.as_view()),
     path('featured-artworks/', FeaturedArtworkView.as_view()),
     path('cloudinary/', CloudFile.as_view()),
+    path('likes/', LikeView.as_view({'get': 'list', 'post': 'create'})),
+    path('likes/<int:pk>/', LikeView.as_view({'get': 'retrieve', 'delete': 'destroy'})),
 ]

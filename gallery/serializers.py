@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Artwork, Category, Bid, ArtworkImage, MessageThread, Message, FeaturedArtowrk
+from .models import Artwork, Category, Bid, ArtworkImage, MessageThread, Message, FeaturedArtowrk, Like
 from myauth.serializers import SimpleUserSerializer
 
 
@@ -27,6 +27,7 @@ class ArtworkSerializer(serializers.ModelSerializer):
     artist_id = serializers.IntegerField(write_only=True)
     category_id = serializers.IntegerField(write_only=True, required=False, allow_null=True)
     bids_count = serializers.IntegerField(read_only=True)
+    likes_count = serializers.IntegerField(read_only=True)
     class Meta:
         model = Artwork
         fields = '__all__'
@@ -66,4 +67,14 @@ class FeaturedArtowrkSerializer(serializers.ModelSerializer):
     artwork = ArtworkSerializer(read_only=True)
     class Meta:
         model = FeaturedArtowrk
+        fields = '__all__'
+
+
+class LikeSerializer(serializers.ModelSerializer):
+    user = SimpleUserSerializer(read_only=True)
+    user_id = serializers.IntegerField(write_only=True)
+    artwork = SimpleArtworkSerializer(read_only=True)
+    artwork_id = serializers.IntegerField(write_only=True)
+    class Meta:
+        model = Like
         fields = '__all__'

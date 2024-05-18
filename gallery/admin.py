@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Artwork, Category, Bid, MessageThread, ArtworkImage, FeaturedArtowrk
+from .models import Artwork, Category, Bid, MessageThread, ArtworkImage, FeaturedArtowrk, Like
 
 class ArtworkImageInline(admin.TabularInline):
     model = ArtworkImage
@@ -21,3 +21,4 @@ admin.site.register(Bid)
 admin.site.register(MessageThread)
 admin.site.register(FeaturedArtowrk)
 admin.site.register(ArtworkImage)
+admin.site.register(Like)
