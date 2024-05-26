@@ -14,13 +14,13 @@ class SimpleUserLocationSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     is_banned = serializers.BooleanField(read_only=True)
     location = SimpleUserLocationSerializer(read_only=True)
+    location_id = serializers.IntegerField(write_only=True, required=False, allow_null=True)
     class Meta:
         model = User
         fields = ['id', 'first_name', 'last_name', 'email', 'username', 'avatar_url',
                     'phone_number', 'location', 'user_type', 'user_type_display',
-                    'about', 'achievements', 'is_banned']
+                    'about', 'achievements', 'is_banned', 'password', 'location_id']
         extra_kwargs = {'password': {'write_only': True},
-                        'location_id': {'write_only': True, 'required': False},
                         }
         
     def create(self, validated_data):

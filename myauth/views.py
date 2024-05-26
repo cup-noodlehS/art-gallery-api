@@ -10,6 +10,7 @@ from rest_framework import status
 import jwt, datetime
 import cloudinary
 from cloudinary.uploader import upload
+from django.db.models import Count
 
 from .models import User, UserLocation
 from .serializers import UserSerializer, UserLocationSerializer
@@ -27,7 +28,15 @@ class UserView(APIView):
 
 class Register(APIView):
     def post(self, request):
-        data = request.data
+        data = request.data.copy()
+
+        location_input = data.pop('location', None)
+        if location_input is not None and location_input != '':
+            location = UserLocation.objects.filter(name=location_input).first()
+            if location is None:
+                location = UserLocation.objects.create(name=location_input)
+            data['location_id'] = location.id
+
         serializer = UserSerializer(data=data)
         try:
             serializer.is_valid(raise_exception=True)
@@ -121,15 +130,14 @@ class GalleryUsers(viewsets.ViewSet):
 
 class LocationView(APIView):
     def get(self, request):
-        query_set = UserLocation.objects.all()
+        query_set = UserLocation.objects.annotate(population=Count('users')).order_by('-population')
         filters = {}
         for key in request.query_params.keys():
             filters[key] = request.query_params[key]
         top = filters.pop('top', 0)
         size_per_request = 20
         if filters:
-            query_set = query_set.filter(*filters)
-        
+            query_set = query_set.filter(**filters)
         objects = UserLocationSerializer(query_set, many=True).data
         total_count = len(objects)
         objects = objects[top:top + size_per_request]

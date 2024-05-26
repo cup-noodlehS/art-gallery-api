@@ -11,7 +11,6 @@ class CustomUserAdminForm(forms.ModelForm):
 class CustomUserAdmin(UserAdmin):
     form = CustomUserAdminForm
     list_display = ('email', 'username')
-
     fieldsets = (
         (None, {'fields': ('email', 'password', 'is_banned')}),
         ('Personal info', {'fields': ('avatar_url', 'username', 'phone_number', 'location', 'user_type', 'about', 'achievements')}),
