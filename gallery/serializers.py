@@ -36,8 +36,6 @@ class ArtworkSerializer(serializers.ModelSerializer):
 class SimpleArtworkSerializer(serializers.ModelSerializer):
     class Meta(ArtworkSerializer.Meta):
         fields = ['id', 'title', 'slug']
-    
-
 
 
 class BidSerializer(serializers.ModelSerializer):

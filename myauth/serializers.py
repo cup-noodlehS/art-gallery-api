@@ -7,11 +7,15 @@ class UserLocationSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'user_count']
         extra_kwargs = {'user_count': {'read_only': True}}
 
+class SimpleUserLocationSerializer(serializers.ModelSerializer):
+    class Meta(UserLocationSerializer.Meta):
+        fields = ['name']
+
 class UserSerializer(serializers.ModelSerializer):
     is_banned = serializers.BooleanField(read_only=True)
+    location = SimpleUserLocationSerializer()
     class Meta:
         model = User
-        location = UserLocationSerializer()
         fields = ['id', 'first_name', 'last_name', 'email', 'username', 'avatar_url',
                     'phone_number', 'location', 'user_type', 'user_type_display',
                     'about', 'achievements', 'is_banned']
