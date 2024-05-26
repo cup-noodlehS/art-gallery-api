@@ -13,7 +13,7 @@ class SimpleUserLocationSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     is_banned = serializers.BooleanField(read_only=True)
-    location = SimpleUserLocationSerializer()
+    location = SimpleUserLocationSerializer(read_only=True)
     class Meta:
         model = User
         fields = ['id', 'first_name', 'last_name', 'email', 'username', 'avatar_url',

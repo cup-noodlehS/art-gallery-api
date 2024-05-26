@@ -30,6 +30,9 @@ class UserLocation(models.Model):
     @property
     def user_count(self):
         return User.objects.filter(location=self).count()
+    
+    def __str__(self):
+        return self.name
 
 
 class User(AbstractUser):

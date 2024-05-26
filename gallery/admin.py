@@ -14,6 +14,7 @@ class ArtworkAdmin(admin.ModelAdmin):
     list_display = ('title', 'artist', 'status', 'current_highest_bid', 'created_on')  # Corrected 'price' to 'current_highest_bid'
     list_filter = ('status',)
     search_fields = ('title', 'artist__username')
+    readonly_fields = ('current_highest_bid', 'bids_count', 'likes_count')
 
 admin.site.register(Artwork, ArtworkAdmin)
 admin.site.register(Category)
