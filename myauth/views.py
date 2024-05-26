@@ -11,8 +11,8 @@ import jwt, datetime
 import cloudinary
 from cloudinary.uploader import upload
 
-from .models import User
-from .serializers import UserSerializer
+from .models import User, UserLocation
+from .serializers import UserSerializer, UserLocationSerializer
 from faso.utils import upload_to_cloudinary
 from myauth.utils import get_user
 
@@ -117,3 +117,36 @@ class GalleryUsers(viewsets.ViewSet):
         object = User.objects.get(pk=pk)
         serialized = UserSerializer(object)
         return Response(serialized.data)
+    
+
+class LocationView(APIView):
+    def get(self, request):
+        query_set = UserLocation.objects.all()
+        filters = {}
+        for key in request.query_params.keys():
+            filters[key] = request.query_params[key]
+        top = filters.pop('top', 0)
+        size_per_request = 20
+        if filters:
+            query_set = query_set.filter(*filters)
+        
+        objects = UserLocationSerializer(query_set, many=True).data
+        total_count = len(objects)
+        objects = objects[top:top + size_per_request]
+
+        return Response({
+            'total_count': total_count,
+            'objects': objects
+        })
+    
+    def post(self, request):
+        name = request.data.get('name')
+        existing = UserLocation.objects.filter(name=name).first()
+        if existing:
+            object = UserLocationSerializer(existing)
+            return Response(object.data)
+        
+        serializer = UserLocationSerializer(data={'name': name})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
