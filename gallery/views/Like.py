@@ -43,7 +43,8 @@ class LikeView(viewsets.ViewSet):
         if instance.exists():
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
-        serializer = LikeSerializer(instance)
+        data = request.data
+        serializer = LikeSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

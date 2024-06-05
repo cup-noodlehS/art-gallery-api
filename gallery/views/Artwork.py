@@ -113,6 +113,23 @@ class ArtworkView(viewsets.ViewSet):
 
     def update(self, request, pk=None):
         artwork = Artwork.objects.get(pk=pk)
+        prev_image_urls = [image.image_url for image in artwork.images.all()]
+        image_urls = request.data.pop('image_urls', [])
+        for image_url in image_urls:
+            if image_url not in prev_image_urls:
+                artwork_image_data = {
+                    'artwork': artwork.id,
+                    'image_url': image_url
+                }
+                artwork_image_serializer = ArtworkImageSerializer(data=artwork_image_data)
+                if artwork_image_serializer.is_valid():
+                    artwork_image_serializer.save()
+                else:
+                    return Response(artwork_image_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        for image_url in prev_image_urls:
+            if image_url not in image_urls:
+                artwork_image = ArtworkImage.objects.get(image_url=image_url)
+                artwork_image.delete()
         serializer = ArtworkSerializer(artwork, data=request.data)
         if serializer.is_valid():
             serializer.save()
