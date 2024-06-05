@@ -66,7 +66,6 @@ class ArtworkView(viewsets.ViewSet):
         })
 
     def retrieve(self, request, pk=None):
-        print(request.user, 'request.user')
         queryset = Artwork.objects.all()
         artwork = get_object_or_404(queryset, pk=pk)
         serialized_artwork = ArtworkSerializer(artwork)
