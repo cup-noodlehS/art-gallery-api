@@ -31,6 +31,8 @@ def like_all_artworks():
     artworks = Artwork.objects.all()
     for artwork in artworks:
         Like.objects.create(user=user, artwork=artwork)
+        artwork.viewers_count += random.randint(100, 1000)
+        artwork.save()
 
 def follow_all_users():
     user = User.objects.first()
@@ -43,7 +45,7 @@ def create_bid_all():
     user = User.objects.first()
     artworks = Artwork.objects.all()
     for artwork in artworks:
-        Bid.objects.create(user=user, artwork=artwork, bid_amount=random.randint(100, 1000))
+        Bid.objects.create(user=user, artwork=artwork, bid_amount=random.randint(10000, 1000000))
 
 if __name__ == '__main__':
     with transaction.atomic():
