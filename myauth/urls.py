@@ -10,6 +10,6 @@ urlpatterns = [
     path('gallery-user/', GalleryUsers.as_view({'get':'list'})),
     path('gallery-user/<int:pk>/', GalleryUsers.as_view({'get':'retrieve'})),
     path('user-location/', LocationView.as_view()),
-    path('follow/', FollowView.as_view({'get': 'list', 'post': 'create'})),
-    path('follow/<int:pk>/', FollowView.as_view({'delete': 'destroy'})),
+    path('following/', FollowView.as_view({'get': 'list', 'post': 'create'})),
+    path('following/<int:pk>/', FollowView.as_view({'delete': 'destroy'})),
 ]

@@ -13,7 +13,7 @@ from cloudinary.uploader import upload
 from django.db.models import Count
 
 from .models import User, UserLocation, Following
-from .serializers import UserSerializer, UserLocationSerializer
+from .serializers import UserSerializer, UserLocationSerializer, SimpleUserSerializer
 from faso.utils import upload_to_cloudinary
 from myauth.utils import get_user
 
@@ -171,18 +171,18 @@ class FollowView(viewsets.ViewSet):
         if following is None:
             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
         
-        existing = Following.objects.filter(follower=user, following=following).first()
+        existing = Following.objects.filter(follower=user, followed=following).first()
         if existing:
             return Response({'error': 'Already following'}, status=status.HTTP_400_BAD_REQUEST)
         
-        Following.objects.create(follower=user, following=following)
+        Following.objects.create(follower=user, followed=following)
         return Response({'message': 'success'})
     
     def list(self, request):
         user = get_user(request)
         if user.is_banned:
             return Response({'error': 'User is banned'}, status=status.HTTP_403_FORBIDDEN)
-        query_set = Following.objects.filter(follower=user)
+        query_set = Following.objects.all()
         filters = {}
         for key in request.query_params.keys():
             filters[key] = request.query_params[key]
@@ -190,11 +190,11 @@ class FollowView(viewsets.ViewSet):
         size_per_request = 20
         if filters:
             query_set = query_set.filter(**filters)
-        
-        objects = UserSerializer([following.following for following in query_set], many=True).data
+        users = query_set.values_list('followed', flat=True)
+        users = User.objects.filter(pk__in=users)
+        objects = SimpleUserSerializer(users, many=True).data
         total_count = len(objects)
         objects = objects[top:top + size_per_request]
-
         return Response({
             'total_count': total_count,
             'objects': objects
@@ -204,13 +204,12 @@ class FollowView(viewsets.ViewSet):
         user = get_user(request)
         if user.is_banned:
             return Response({'error': 'User is banned'}, status=status.HTTP_403_FORBIDDEN)
-        following = User.objects.filter(pk=pk).first()
+        if pk is None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        
+        following = Following.objects.filter(follower=user, followed__pk=pk).first()
         if following is None:
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Not following'}, status=status.HTTP_404_NOT_FOUND)
         
-        existing = Following.objects.filter(follower=user, following=following).first()
-        if existing is None:
-            return Response({'error': 'Not following'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        existing.delete()
+        following.delete()
         return Response({'message': 'success'})
