@@ -26,11 +26,10 @@ class ArtworkView(viewsets.ViewSet):
         #     excludes['artist_id'] = request.user.id
         for key in request.query_params.keys():
             value = request.query_params[key]
-            if ',' in value:
+            if key[-4:] == '__in':
                 value = [int(v) for v in value.split(',')]
             filters[key] = value
                 
-
         search_key = filters.pop('search_key', None)
         order = filters.pop('order_by', None)
 
