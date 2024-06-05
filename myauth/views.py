@@ -12,7 +12,7 @@ import cloudinary
 from cloudinary.uploader import upload
 from django.db.models import Count
 
-from .models import User, UserLocation
+from .models import User, UserLocation, Following
 from .serializers import UserSerializer, UserLocationSerializer
 from faso.utils import upload_to_cloudinary
 from myauth.utils import get_user
@@ -158,3 +158,59 @@ class LocationView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
+    
+
+class FollowView(viewsets.ViewSet):
+    def create(self, request):
+        user = get_user(request)
+        if user.is_banned:
+            return Response({'error': 'User is banned'}, status=status.HTTP_403_FORBIDDEN)
+        data = request.data
+        following_id = data.get('following_id')
+        following = User.objects.filter(pk=following_id).first()
+        if following is None:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        existing = Following.objects.filter(follower=user, following=following).first()
+        if existing:
+            return Response({'error': 'Already following'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        Following.objects.create(follower=user, following=following)
+        return Response({'message': 'success'})
+    
+    def list(self, request):
+        user = get_user(request)
+        if user.is_banned:
+            return Response({'error': 'User is banned'}, status=status.HTTP_403_FORBIDDEN)
+        query_set = Following.objects.filter(follower=user)
+        filters = {}
+        for key in request.query_params.keys():
+            filters[key] = request.query_params[key]
+        top = filters.pop('top', 0)
+        size_per_request = 20
+        if filters:
+            query_set = query_set.filter(**filters)
+        
+        objects = UserSerializer([following.following for following in query_set], many=True).data
+        total_count = len(objects)
+        objects = objects[top:top + size_per_request]
+
+        return Response({
+            'total_count': total_count,
+            'objects': objects
+        })
+    
+    def destroy(self, request, pk=None):
+        user = get_user(request)
+        if user.is_banned:
+            return Response({'error': 'User is banned'}, status=status.HTTP_403_FORBIDDEN)
+        following = User.objects.filter(pk=pk).first()
+        if following is None:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        existing = Following.objects.filter(follower=user, following=following).first()
+        if existing is None:
+            return Response({'error': 'Not following'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        existing.delete()
+        return Response({'message': 'success'})

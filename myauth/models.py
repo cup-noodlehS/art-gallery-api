@@ -60,5 +60,14 @@ class User(AbstractUser):
     @property
     def user_type_display(self):
         return dict(self.USER_TYPE_CHOICES)[self.user_type]
+    
+    @property
+    def followers_count(self):
+        return self.followers.count()
 
     objects = CustomUserManager()
+
+
+class Following(models.Model):
+    follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name='following')
+    followed = models.ForeignKey(User, on_delete=models.CASCADE, related_name='followers')

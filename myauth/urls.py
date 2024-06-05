@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import Register, Login, UserView, Logout, EmailCheckerView, GalleryUsers, LocationView
+from .views import Register, Login, UserView, Logout, EmailCheckerView, GalleryUsers, LocationView, FollowView
 
 urlpatterns = [
     path('register/', Register.as_view()),
@@ -9,5 +9,7 @@ urlpatterns = [
     path('check-email/', EmailCheckerView.as_view()),
     path('gallery-user/', GalleryUsers.as_view({'get':'list'})),
     path('gallery-user/<int:pk>/', GalleryUsers.as_view({'get':'retrieve'})),
-    path('user-location/', LocationView.as_view())
+    path('user-location/', LocationView.as_view()),
+    path('follow/', FollowView.as_view({'get': 'list', 'post': 'create'})),
+    path('follow/<int:pk>/', FollowView.as_view({'delete': 'destroy'})),
 ]
