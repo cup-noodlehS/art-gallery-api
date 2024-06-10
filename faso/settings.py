@@ -145,8 +145,8 @@ AUTH_USER_MODEL = 'myauth.User'
 # CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
     "https://moonine.vercel.app",
+    "http://localhost:3000",
 ]
 
 JWT_SECRET = os.environ.get('JWT_SECRET')
