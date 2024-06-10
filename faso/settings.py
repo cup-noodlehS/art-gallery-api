@@ -30,7 +30,7 @@ SECRET_KEY = 'django-insecure-w!kc_+((5+(btj290m5n&ku3z(qal^84a4skhkobi=w7^52rdl
 DEBUG = True
 
 RENDER_HOST = os.environ.get('RENDER_HOST') or "localhost"
-ALLOWED_HOSTS = [RENDER_HOST, '127.0.0.1']
+ALLOWED_HOSTS = [RENDER_HOST, 'art-gallery-api-ksz1.onrender.com', '127.0.0.1']
 
 
 # Application definition
