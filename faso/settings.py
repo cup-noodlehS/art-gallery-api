@@ -62,8 +62,9 @@ MIDDLEWARE = [
     'myauth.middlewares.JWTAuthentication',
 ]
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
-CSRF_TRUSTED_ORIGINS = [os.environ.get('FRONT_END_URL')]
+# ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+frontend_url = os.environ.get('FRONT_END_URL') or "http://localhost:3000"
+CSRF_TRUSTED_ORIGINS = [frontend_url]
 
 ROOT_URLCONF = 'faso.urls'
 
