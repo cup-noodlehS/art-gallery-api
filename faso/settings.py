@@ -29,12 +29,7 @@ SECRET_KEY = 'django-insecure-w!kc_+((5+(btj290m5n&ku3z(qal^84a4skhkobi=w7^52rdl
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-RENDER_HOST = os.environ.get('RENDER_HOST') or "localhost"
-is_production = os.environ.get('IS_PRODUCTION') or False
-if is_production:
-    ALLOWED_HOSTS = ['art-gallery-api-ksz1.onrender.com']
-else:
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost 127.0.0.1').split(' ')
 
 
 # Application definition
