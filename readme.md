@@ -1,5 +1,9 @@
-## Frontend
+# Frontend
 - https://github.com/cup-noodlehS/art-gallery-fontend
+
+# Sytem Design
+![image](https://github.com/cup-noodlehS/art-gallery-api/assets/93570629/3fb3d600-645f-46b4-92cd-a3074767274c)
+
 
 # How to setup  
 
