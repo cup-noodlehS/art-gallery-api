@@ -1,7 +1,13 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
+
 from django.shortcuts import get_object_or_404
+from django.core.cache import cache
+from django.db.models import Q
+from django.core.paginator import Paginator
+from django.db import transaction
 
 class GenericView(viewsets.ViewSet):
     queryset = None
@@ -10,84 +16,142 @@ class GenericView(viewsets.ViewSet):
     permission_classes = []
     instance_method_fields = []
 
-    cache_key = None
-    cache_duration = 60 * 60  
-    
+    cache_key_prefix = None
+    cache_duration = 60 * 60  # 1 hour
+
     # CRUD operations
     def list(self, request):
+        try:
+            filters, excludes = self.parse_query_params(request)
+            top, bottom = self.get_pagination_params(filters)
+        
+            cached_data = None    
+            if self.cache_key_prefix:
+                cache_key = self.get_list_cache_key(filters, excludes, top, bottom)
+                cached_data = cache.get(cache_key)
+            if cached_data:
+                return Response(cached_data, status=status.HTTP_200_OK)
+            
+            return self.filter(request, filters, excludes, top, bottom)
+        except ValidationError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def retrieve(self, request, pk=None):
+        cached_object = None
+        if self.cache_key_prefix:
+            cache_key = self.get_object_cache_key(pk)
+            cached_object = cache.get(cache_key)
+        if cached_object:
+            return Response(cached_object, status=status.HTTP_200_OK)
+        
+        object = self.get_serialized_object(pk)
+        self.cache_object(object, pk)
+        return Response(object, status=status.HTTP_200_OK)
+
+    @transaction.atomic
+    def create(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            instance = serializer.save()
+            self.cache_object(serializer.data, instance.pk)
+            self.invalidate_list_cache()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @transaction.atomic
+    def update(self, request, pk=None):
+        instance = get_object_or_404(self.queryset, pk=pk)
+        serializer = self.serializer_class(instance, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            self.cache_object(serializer.data, pk)
+            self.invalidate_list_cache()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @transaction.atomic
+    def destroy(self, request, pk=None):
+        instance = get_object_or_404(self.queryset, pk=pk)
+        self.delete_cache(pk)
+        self.invalidate_list_cache()
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    # Cache operations
+    def delete_cache(self, pk):
+        if not self.cache_key_prefix:
+            return
+        cache_key = self.get_object_cache_key(pk)
+        cache.delete(cache_key)
+
+    def invalidate_list_cache(self):
+        if not self.cache_key_prefix:
+            return
+        cache.delete_pattern(f"{self.cache_key_prefix}_list_*")
+
+    def cache_object(self, object_data, pk):
+        if not self.cache_key_prefix:
+            return
+        cache_key = self.get_object_cache_key(pk)
+        cache.set(cache_key, object_data, self.cache_duration)
+
+    def get_object_cache_key(self, pk):
+        return f"{self.cache_key_prefix}_object_{pk}"
+
+    def get_list_cache_key(self, filters, excludes, top, bottom):
+        return f"{self.cache_key_prefix}_list_{hash(frozenset(filters.items()))}_" \
+               f"{hash(frozenset(excludes.items()))}_{top}_{bottom}"
+
+    # Helper methods
+    def parse_query_params(self, request):
         filters = {}
         excludes = {}
-        for key in request.query_params.keys():
-            value = request.query_params[key]
-            if key[-4:] == '__in':
-                value = [int(v) for v in value.split(',')]
-            filters[key] = value
+        for key, value in request.query_params.items():
+            if key.endswith('__in'):
+                try:
+                    value = [int(v) for v in value.split(',')]
+                except ValueError:
+                    raise ValidationError(f"Invalid value for {key}")
+            if key.startswith('exclude__'):
+                excludes[key[8:]] = value
+            else:
+                filters[key] = value
+        return filters, excludes
 
+    def get_pagination_params(self, filters):
         top = int(filters.pop('top', 0))
         bottom = filters.pop('bottom', None)
         if bottom:
             bottom = int(bottom)
         else:
             bottom = top + self.size_per_request
-        
-        return self.filter(request, filters, excludes, top, bottom)
-    
-    def retrieve(self, request, pk=None):
-        object = self.get_serialized_object(pk)
-        return Response(object, status=status.HTTP_200_OK)
-    
-    def create(self, request):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-    def update(self, request, pk=None):
-        object = self.queryset.get_object_or_404(pk=pk)
-        serializer = self.serializer_class(object, data=request.data)
-        if serializer.is_valid():
-            self.delete_cache(pk)
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-    def destroy(self, request, pk=None):
-        object = self.query_set.get_object_or_404(pk=pk)
-        self.delete_cache(pk)
-        object.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-    
-    # END CRUD operations
+        return top, bottom
 
-    # Cache operations
-    def delete_cache(self, pk):
-        pass
+    def filter_queryset(self, filters, excludes):
+        filter_q = Q(**filters)
+        exclude_q = Q(**excludes)
+        return self.queryset.filter(filter_q).exclude(exclude_q)
 
-    def cache_queryset(self, queryset):
-        pass
-
-    def cache_object(self, object, pk):
-        pass
-    # END Cache operations
-
-    # Helper methods
-    def filter_queryset(self, filters, excludes, *args, **kwargs):
-        return self.queryset.filter(**filters).exclude(**excludes)
-    
-    def filter(self, request, filters, excludes, top, bottom, *args, **kwargs):
+    def filter(self, request, filters, excludes, top, bottom):
         queryset = self.filter_queryset(filters, excludes)
-            
-        total_count = len(queryset)
-        objects = self.queryset[top:bottom].serializer_class(queryset, many=True).data
+        
+        paginator = Paginator(queryset, self.size_per_request)
+        page_number = (top // self.size_per_request) + 1
+        page = paginator.get_page(page_number)
+        
+        serializer = self.serializer_class(page, many=True)
+        data = {
+            'objects': serializer.data,
+            'total_count': paginator.count,
+            'num_pages': paginator.num_pages,
+            'current_page': page.number
+        }
+        
+        cache_key = self.get_list_cache_key(filters, excludes, top, bottom)
+        cache.set(cache_key, data, self.cache_duration)
+        
+        return Response(data, status=status.HTTP_200_OK)
 
-        return Response({
-            'objects': objects,
-            'total_count': total_count
-        }, status=status.HTTP_200_OK)
-    
     def get_serialized_object(self, pk):
-        # use caching soon
-        return self.serializer_class(get_object_or_404(self.queryset, pk=pk)).data
-    
-    # END Helper methods
+        instance = get_object_or_404(self.queryset, pk=pk)
+        return self.serializer_class(instance).data
