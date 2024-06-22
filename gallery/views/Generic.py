@@ -14,7 +14,6 @@ class GenericView(viewsets.ViewSet):
     serializer_class = None
     size_per_request = 20
     permission_classes = []
-    instance_method_fields = []
 
     cache_key_prefix = None
     cache_duration = 60 * 60  # 1 hour
