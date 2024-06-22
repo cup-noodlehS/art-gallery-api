@@ -10,13 +10,17 @@ from django.core.paginator import Paginator
 from django.db import transaction
 
 class GenericView(viewsets.ViewSet):
-    queryset = None
-    serializer_class = None
-    size_per_request = 20
-    permission_classes = []
+    queryset = None # the model queryset
+    serializer_class = None # DRF model serializer class
+    size_per_request = 20 # number of objects to return per request
+    permission_classes = [] # list of permission classes
 
-    cache_key_prefix = None
-    cache_duration = 60 * 60  # 1 hour
+    cache_key_prefix = None # cache key prefix
+    cache_duration = 60 * 60  # cache duration in seconds
+
+    def __init__(self):
+        if not self.queryset or not self.serializer_class:
+            raise NotImplementedError('queryset and serializer_class must be defined')
 
     # CRUD operations
     def list(self, request):
