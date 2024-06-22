@@ -106,16 +106,20 @@ class GenericView(viewsets.ViewSet):
     def parse_query_params(self, request):
         filters = {}
         excludes = {}
+
+        def parse_list_parameter(value):
+            values = [v.strip() for v in value.rstrip(',').split(',') if v.strip()]
+            return values if len(values) > 1 else values[0] if values else None
+
         for key, value in request.query_params.items():
-            if key.endswith('__in'):
-                try:
-                    value = [int(v) for v in value.split(',')]
-                except ValueError:
-                    raise ValidationError(f"Invalid value for {key}")
             if key.startswith('exclude__'):
-                excludes[key[8:]] = value
+                parsed_value = parse_list_parameter(value) if ',' in value else value.strip()
+                excludes[key[8:]] = parsed_value
             else:
-                filters[key] = value
+                parsed_value = parse_list_parameter(value) if ',' in value else value.strip()
+                if parsed_value is not None:
+                    filters[key] = parsed_value
+
         return filters, excludes
 
     def get_pagination_params(self, filters):
