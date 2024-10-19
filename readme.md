@@ -54,7 +54,7 @@ PS C:\Users\User\Desktop\127> venv/scripts/activate
 
 ### Install packages
 ```
-pip install requirements.txt
+pip install -r requirements.txt
 ```
 ### Migrate
 ```
